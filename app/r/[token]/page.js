@@ -5,9 +5,10 @@ import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function ReceiptPage({ params }) {
-  const { token } = use(params); // ✅ Fix for Next.js 15+ App Router
+  const { token } = use(params);
 
   const [receipt, setReceipt] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
 
@@ -15,10 +16,14 @@ export default function ReceiptPage({ params }) {
     async function fetchReceipt() {
       const q = query(collection(db, 'transactions'), where('token', '==', token));
       const snapshot = await getDocs(q);
+
       if (!snapshot.empty) {
         setReceipt(snapshot.docs[0].data());
       }
+
+      setLoading(false); // ✅ done loading regardless of result
     }
+
     fetchReceipt();
   }, [token]);
 
@@ -43,6 +48,8 @@ export default function ReceiptPage({ params }) {
     }
   };
 
+  // ✅ prevent "not found" until we're sure it's not found
+  if (loading) return <div>Loading receipt...</div>;
   if (!receipt) return <div>Receipt not found.</div>;
 
   const { terminal, items, total, createdAt } = receipt;
@@ -119,10 +126,6 @@ export default function ReceiptPage({ params }) {
     </div>
   );
 }
-
-
-
-
 
 
 
