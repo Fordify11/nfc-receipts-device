@@ -1,25 +1,22 @@
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 export default async function handler(req, res) {
-  const token = req.query.token?.trim(); // 🧼 Trim just in case
+  const token = req.query.token?.trim();
   if (!token) {
     return res.status(400).json({ error: 'Missing token' });
   }
 
   try {
-    console.log('🔍 Looking up receipt for token:', token);
+    const receiptRef = doc(db, 'transactions', token);
+    const snapshot = await getDoc(receiptRef);
 
-    const q = query(collection(db, 'transactions'), where('token', '==', token));
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
+    if (!snapshot.exists()) {
       console.warn('⚠️ No receipt found for token:', token);
       return res.status(404).json({ error: 'Receipt not found' });
     }
 
-    const receipt = snapshot.docs[0].data();
-
+    const receipt = snapshot.data();
     console.log('✅ Receipt found:', receipt);
 
     return res.status(200).json({ receipt });
@@ -28,3 +25,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Server error' });
   }
 }
+
