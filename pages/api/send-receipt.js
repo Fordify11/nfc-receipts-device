@@ -1,4 +1,4 @@
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import sgMail from '@sendgrid/mail';
 
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { token, email } = req.body;
+  const { token, email, deviceId } = req.body; // ✅ added deviceId
 
   if (!token || !email) {
     return res.status(400).json({ error: 'Token and email are required' });
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
     const message = {
       to: email,
-      from: 'fordify@outlook.com',
+      from: 'fordify@outlook.com', // ✅ make sure this is a verified sender in SendGrid
       subject: 'Your Receipt',
       html: `
         <div style="font-family: monospace; max-width: 400px; margin: auto;">
@@ -70,13 +70,20 @@ export default async function handler(req, res) {
     };
 
     await sgMail.send(message);
+
+    // ✅ Store deviceId → email mapping
+    if (deviceId) {
+      const deviceRef = doc(collection(db, 'deviceLinks'), deviceId);
+      await setDoc(deviceRef, {
+        email,
+        updatedAt: new Date()
+      });
+    }
+
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error(err);
+    console.error('send-receipt error:', err);
     return res.status(500).json({ error: 'Failed to send email' });
   }
 }
-
-
-
