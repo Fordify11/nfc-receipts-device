@@ -113,7 +113,30 @@ export default function ReceiptPage({ params }) {
           style={{
             width: '100%',
             padding: '0.5rem',
+            marginBottom: '0.5rem',
+            fontFamily: 'inherit',
+            fontSize: '1rem'
+          }}
+        />
+        <button
+          onClick={handleSend}
+          style={{
+            width: '100%',
+            padding: '0.5rem',
+            backgroundColor: '#000',
+            color: '#fff',
+            fontFamily: 'inherit',
+            cursor: 'pointer'
+          }}
+        >
+          Send Receipt to Email
+        </button>
+        <p style={{ textAlign: 'center', marginTop: '0.5rem' }}>{status}</p>
+      </div>
 
-
-
-
+      <p style={{ fontSize: '0.75rem', textAlign: 'center', marginTop: '2rem', color: '#777' }}>
+        Powered by Fordify Limited
+      </p>
+    </div>
+  );
+}
