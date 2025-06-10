@@ -32,4 +32,12 @@ export default async function handler(req, res) {
       }
     }
 
-    // Default fallback: just redire
+    // Default fallback: just redirect to receipt page
+    res.writeHead(302, { Location: `/r/${randomToken}` });
+    res.end();
+
+  } catch (err) {
+    console.error('Error in /api/random-token:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
