@@ -21,15 +21,18 @@ export default async function handler(req, res) {
       const linkSnap = await getDoc(linkRef);
 
       if (linkSnap.exists()) {
-        const { email } = linkSnap.data();
+  const { email } = linkSnap.data();
 
-        // ✅ Send the receipt to stored email
-        await sendEmail(randomToken, email);
+  // ✅ Send the receipt to stored email
+  await sendEmail(randomToken, email);
 
-        // ✅ Redirect to confirmation page
-        res.writeHead(302, { Location: '/sent' });
-        return res.end();
-      }
+  // ✅ Redirect to confirmation page with token + email
+  res.writeHead(302, {
+    Location: `/sent?token=${randomToken}&email=${encodeURIComponent(email)}`
+  });
+  return res.end();
+}
+
     }
 
     // Default fallback: just redirect to receipt page
